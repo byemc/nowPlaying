@@ -1,6 +1,5 @@
 import asyncio
 import time
-
 from winrt.windows.media.control import \
     GlobalSystemMediaTransportControlsSessionManager as MediaManager
 from winrt.windows.storage.streams import \
@@ -39,33 +38,37 @@ async def read_stream_into_buffer(stream_ref, buffer):
     readable_stream = await stream_ref.open_read_async()
     readable_stream.read_async(buffer, buffer.capacity, InputStreamOptions.READ_AHEAD)
 
-def ExportInfo():
+def ExportInfo(title, artist):
     # Encode info.txt as utf-8
     with open('title.txt', 'w', encoding='utf-8') as f:
         f.write(title)
     with open('artist.txt', 'w', encoding='utf-8') as f:
         f.write(artist)
 
-
-if __name__ == '__main__':
+def main():
     while True:
         current_media_info = asyncio.run(get_media_info())
-        if current_media_info == None:
+        titlefile = open('title.txt', 'r', encoding='utf-8')
+        artistfile = open('artist.txt', 'r', encoding='utf-8')
+        if current_media_info == None and titlefile.read() != '' and artistfile.read() != '':
             title = ""
             artist = ""
-            ExportInfo()
+            ExportInfo(title, artist)
+            with open('media_thumb.png', 'wb+') as fobj:
+                with open ('default.png', 'rb') as f:
+                    fobj.write(f.read())
             continue
-        if current_media_info['playback_type'] == 1: 
-            isPlaying = "Playing"
-        else:
-            isPlaying = "Stopped"
+        elif current_media_info == None:
+            continue
         
         #print(current_media_info)
 
         title = current_media_info['title']
         artist = current_media_info['artist']
 
-        ExportInfo()
+        if titlefile.read() != title or artistfile.read() != artist:
+
+            ExportInfo(title, artist)
 
         try:
             # create the current_media_info dict with the earlier code first
@@ -81,13 +84,17 @@ if __name__ == '__main__':
             buffer_reader = DataReader.from_buffer(thumb_read_buffer)
             byte_buffer = buffer_reader.read_bytes(thumb_read_buffer.length)
 
-            with open('media_thumb.jpg', 'wb+') as fobj:
+            with open('media_thumb.png', 'wb+') as fobj:
                 fobj.write(bytearray(byte_buffer))
+
         except AttributeError:
-            with open('media_thumb.jpg', 'wb+') as fobj:
-                with open ('default.jpg', 'rb') as f:
+            with open('media_thumb.png', 'wb+') as fobj:
+                with open ('default.png', 'rb') as f:
                     fobj.write(f.read())
 
         time.sleep(1)
+
+if __name__ == '__main__':
+    main()
 
         
