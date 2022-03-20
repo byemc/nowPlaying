@@ -70,31 +70,34 @@ def main():
 
             ExportInfo(title, artist)
 
-        try:
-            # create the current_media_info dict with the earlier code first
-            thumb_stream_ref = current_media_info['thumbnail']
-
-            # 5MB (5 million byte) buffer - thumbnail unlikely to be larger
-            thumb_read_buffer = Buffer(5000000)
-
-            # copies data from data stream reference into buffer created above
-            asyncio.run(read_stream_into_buffer(thumb_stream_ref, thumb_read_buffer))
-
-            # reads data (as bytes) from buffer
-            buffer_reader = DataReader.from_buffer(thumb_read_buffer)
-            byte_buffer = buffer_reader.read_bytes(thumb_read_buffer.length)
-
-            with open('media_thumb.png', 'wb+') as fobj:
-                fobj.write(bytearray(byte_buffer))
-
-        except AttributeError:
-            with open('media_thumb.png', 'wb+') as fobj:
-                with open ('default.png', 'rb') as f:
-                    fobj.write(f.read())
-
+       
         time.sleep(1)
 
 if __name__ == '__main__':
     main()
 
         
+def getThum(current_media_info):
+    try:
+        # create the current_media_info dict with the earlier code first
+        thumb_stream_ref = current_media_info['thumbnail']
+
+        # 5MB (5 million byte) buffer - thumbnail unlikely to be larger
+        thumb_read_buffer = Buffer(5000000)
+
+        # copies data from data stream reference into buffer created above
+        asyncio.run(read_stream_into_buffer(thumb_stream_ref, thumb_read_buffer))
+
+        # reads data (as bytes) from buffer
+        buffer_reader = DataReader.from_buffer(thumb_read_buffer)
+        byte_buffer = buffer_reader.read_bytes(thumb_read_buffer.length)
+
+        with open('media_thumb.png', 'wb+') as fobj:
+            fobj.write(bytearray(byte_buffer))
+
+    except AttributeError:
+        with open('media_thumb.png', 'wb+') as fobj:
+            with open ('default.png', 'rb') as f:
+                fobj.write(f.read())
+
+
